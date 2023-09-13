@@ -13,6 +13,7 @@ import (
 	"github.com/jedib0t/go-sudoku/sudoku"
 	"github.com/jedib0t/go-sudoku/sudoku/difficulty"
 	"github.com/jedib0t/go-sudoku/sudoku/pattern"
+	"github.com/rivo/tview"
 )
 
 var (
@@ -33,6 +34,7 @@ var (
 	// demo
 	demoRNG   = rand.New(rand.NewSource(1))
 	demoSpeed = time.Second / 5
+	gameView  *tview.TextView
 )
 
 // play starts the game.
@@ -41,7 +43,7 @@ func play() {
 	chStop := make(chan bool, 1)
 	wg := sync.WaitGroup{}
 	wg.Add(1)
-	go renderAsync(chStop, &wg)
+	go renderAsync(chStop, &wg, gameView)
 
 	for {
 		if grid.Done() || userQuit {
@@ -64,7 +66,10 @@ func demo() {
 
 }
 
-func generateSudoku() {
+func generateSudoku(game *tview.TextView) {
+	if game != nil {
+		gameView = game
+	}
 	g := generator.BackTrackingGenerator(
 		generator.WithRNG(rng),
 	)

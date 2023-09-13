@@ -4,8 +4,8 @@ go 1.19
 
 require (
 	github.com/eiannone/keyboard v0.0.0-20220611211555-0d226195f203
+	github.com/epiclabs-io/winman v0.0.0-20220901164457-3d8c4b3ae090
 	github.com/ethereum/go-ethereum v1.12.1
-	github.com/gdamore/tcell/v2 v2.6.0
 	github.com/jedib0t/go-pretty/v6 v6.4.7
 	github.com/jedib0t/go-sudoku v0.0.2
 	github.com/libp2p/go-libp2p v0.29.2
@@ -36,6 +36,7 @@ require (
 	github.com/francoispqt/gojay v1.2.13 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/gdamore/encoding v1.0.0 // indirect
+	github.com/gdamore/tcell/v2 v2.6.0 // indirect
 	github.com/go-ole/go-ole v1.2.1 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect

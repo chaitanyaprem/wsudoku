@@ -41,7 +41,7 @@ func handleActionReset() {
 	renderMutex.Lock()
 	defer renderMutex.Unlock()
 
-	generateSudoku()
+	generateSudoku(nil)
 }
 
 func handleActionInput(char rune) {

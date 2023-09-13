@@ -10,8 +10,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/epiclabs-io/winman"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/gdamore/tcell/v2"
 	"github.com/libp2p/go-libp2p/core/protocol"
 	"github.com/multiformats/go-multiaddr"
 	"github.com/rivo/tview"
@@ -38,17 +38,19 @@ var (
 	pages = tview.NewPages()
 
 	menuFlex = tview.NewFlex()
-	gameFlex = tview.NewFlex()
+	//gameFlex = tview.NewFlex()
 
 	menu     = tview.NewList().ShowSecondaryText(false)
 	app      = tview.NewApplication()
 	infoText = tview.NewTextView()
 	gameMenu = tview.NewList()
+	wm       = winman.NewWindowManager()
+	gameArea = tview.NewTextView()
 )
 
 const contentTopicGames = "/wsudoku/1/games/proto"
 
-const contentTopic = "/wsudoku/1/multiplayer/proto"
+// const contentTopic = "/wsudoku/1/multiplayer/proto"
 const pubSubTopic = "/waku/2/wsudoku/"
 
 func init() {
@@ -99,25 +101,43 @@ func main() {
 		//gameFlex.AddItem(text, 0, 1, false)
 
 	pages.AddPage("Menu", menuFlex, true, true)
-	//pages.AddPage("Game", gameFlex, true, true)
 
 	//pages.AddPage("Info", infoText, true, false)
-
-	if err := app.SetRoot(pages, true).EnableMouse(true).Run(); err != nil {
+	window := wm.NewWindow(). // create new window and add it to the window manager
+					Show().                   // make window visible
+					SetRoot(pages).           // have the text view above be the content of the window
+					SetDraggable(true).       // make window draggable around the screen
+					SetResizable(true).       // make the window resizable
+					SetTitle("Main!").        // set the window title
+					AddButton(&winman.Button{ // create a button with an X to close the application
+			Symbol:  'X',
+			OnClick: func() { app.Stop() }, // close the application
+		})
+	window.SetRect(5, 5, 100, 100) //
+	/* 	_ = wm.NewWindow().               // create new window and add it to the window manager
+					Show().                   // make window visible
+					SetRoot(gameArea).        // have the text view above be the content of the window
+					SetDraggable(true).       // make window draggable around the screen
+					SetResizable(true).       // make the window resizable
+					SetTitle("Sudoku!").      // set the window title
+					AddButton(&winman.Button{ // create a button with an X to close the application
+		Symbol:  'X',
+		OnClick: func() { app.Stop() }, // close the application
+	}) */
+	if err := app.SetRoot(wm, true).EnableMouse(true).Run(); err != nil {
 		panic(err)
 	}
 
-	menuFlex.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+	/* 	menuFlex.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Rune() == 113 {
 			cleanup()
 			app.Stop()
 		}
 		return event
-	})
+	}) */
 
-	//generateSudoku()
-
-	//play()
+	//CreateNewGame()
+	gameArea.SetText("Testing")
 }
 
 func DisplayAvailableGames() {
@@ -145,12 +165,13 @@ func JoinGame() {
 }
 
 func CreateNewGame() {
-	//TODO: If no peers are connected, then don't let user create a new game
+	//If no peers are connected, then don't let user create a new game
 	if len(wakuNode.Host().Network().Peers()) <= 0 {
 		log.Error("Cannot create a game as no Peers connected. Wait for peers to be connected")
 		return
 	}
-	//generateSudoku()
+
+	generateSudoku(gameArea)
 	s2 := rand.NewSource(time.Now().Unix())
 	title := fmt.Sprintf("Sudoku-%d", rand.New(s2).Uint32())
 	payload, err := json.Marshal(NewLiveGame(title, player))
@@ -166,6 +187,9 @@ func CreateNewGame() {
 		return
 	}
 	log.Info("Published New game successfully", zap.String("title", title))
+
+	//wm.SetZ(w1, -1)
+	play()
 }
 
 func gameSetup() {

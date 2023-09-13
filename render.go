@@ -9,6 +9,7 @@ import (
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/jedib0t/go-sudoku/sudoku"
+	"github.com/rivo/tview"
 )
 
 var (
@@ -33,10 +34,12 @@ var (
 	// controls
 	renderEnabled = true
 	renderMutex   = sync.Mutex{}
+	game          *tview.TextView
 )
 
-func renderAsync(chStop chan bool, wg *sync.WaitGroup) {
+func renderAsync(chStop chan bool, wg *sync.WaitGroup, gameView *tview.TextView) {
 	defer wg.Done()
+	gameArea = gameView
 	timer := time.Tick(time.Second / time.Duration(*flagRefreshRate))
 	for {
 		select {
@@ -85,7 +88,9 @@ func renderGame() {
 		}
 
 		linesRendered = strings.Count(out, "\n") + 1
-		fmt.Println(out)
+		//fmt.Println(out)
+		//game.SetText(out, false)
+		game.SetText("Game to be geenrated")
 		renderedGame = out
 	}
 }
